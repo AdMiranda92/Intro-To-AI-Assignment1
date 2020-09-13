@@ -5,6 +5,7 @@ class node:
     def __init__(self, value=None, distance=None):
         self.value = value
         self.distance = distance
+        self.previous = None
     
     def get_value(self):
         return self.value
@@ -50,6 +51,7 @@ class heap:
         self.heapify()
         return minimum
 
+    # this function is purely for debug purposes
     def print_heap(self):
         for i in self.queue:
             print(i.value, i.distance)
@@ -73,65 +75,39 @@ def get_shortest_weighted_path(graph, start, end):
             # if the adjacent node is in the min_heap the continue
             heap_node = min_heap.find_node(node)
             if heap_node is not False:
+                # if the distance to the adjacent node is less than the current distance + weight, change the distance
+                # value of the adjacent node and heapify again before the new minimum is popped
                 if (minimum.distance + weight) < min_heap.queue[heap_node].distance:
+                    min_heap.queue[heap_node].previous = minimum.value
                     min_heap.queue[heap_node].distance = minimum.distance + weight
                     min_heap.heapify()
             else:
                 continue
-    for i in path:
-        print(i.value, i.distance)
-
+        if minimum.value == end:
+            break 
     
+    # print out the information for the shortest path here
+    final = path[-1]
+    shortest_weight = final.distance
+    shortest_path = []
+    shortest_path.append(final.value)
+    while final.value != start:
+        final = [x for x in path if x.value == final.previous][0]
+        shortest_path.insert(0, final.value)
     
-                
-
-
-        
-
-
-
-
-
-# def test_heap():
-#     new_heap = heap()
-#     new_heap.push(1, 100)
-#     new_heap.push(2, 200)
-#     new_heap.push(5, 25)
-#     new_heap.push(9, 1)
-#     new_heap.push(15, 800)
-#     new_heap.push(3, 62)
-#     new_heap.push(95, 0)
-#     new_heap.push(51, 100)
-#     new_heap.print_heap()
-
-#     print("Initial heap above")
-#     smallest = new_heap.pop()
-#     print("smallest weight is: {0}".format(smallest.value))
-#     new_heap.print_heap()
-#     smallest = new_heap.pop()
-#     print("smallest weight is: {0}".format(smallest.value))
-#     new_heap.print_heap()
-#     smallest = new_heap.pop()
-#     print("smallest weight is: {0}".format(smallest.value))
-#     new_heap.print_heap()
-#     smallest = new_heap.pop()
-#     print("smallest weight is: {0}".format(smallest.value))
-#     new_heap.print_heap()
-#     smallest = new_heap.pop()
-#     print("smallest weight is: {0}".format(smallest.value))
-#     new_heap.print_heap()
-#     smallest = new_heap.pop()
-#     print("smallest weight is: {0}".format(smallest.value))
-#     new_heap.print_heap()
-#     smallest = new_heap.pop()
-#     print("smallest weight is: {0}".format(smallest.value))
-#     new_heap.print_heap()
-
+    print("The shortest weighted path available from node {0} to node {1} is: ".format(start, end))
+    for i in shortest_path:
+        if i == shortest_path[-1]:
+            print("{0}".format((i)), end=' ')
+            break
+        print("{0} -->".format(i), end=' ')
+    print("with a weight of {0}".format(shortest_weight))
 
 
 def main():
     # create an empty graph
     graph = {}
+    # FOR THE PROFESSOR/GRADER, PLEASE CHANGE THIS LINE OF CODE TO THE APPROPRIATE FILE PATH
     with open(r'.\\assignment1\\ai_assignment1\\graph.txt', 'r') as f:
         for line in f:
             # assign the 3 int values in the line to 3 variables
@@ -166,6 +142,8 @@ def main():
             break
     
     get_shortest_weighted_path(graph, starting_node, ending_node)
-    # test_heap()
 
-main()
+
+if __name__ == '__main__':
+    main()
+
